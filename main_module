@@ -20,7 +20,7 @@ def classify_vowel(vowel):
         return "Голосний не знайдено! Введіть один з голосних: і, е, а, о, у, и."
 
 def predict_vowel(F1, F2):
-    if not isinstance(F1, (int, float)) or not isinstance(F2, (int, float)): #
+    if not isinstance(F1, (int, float)) or not isinstance(F2, (int, float)):
         return "Будь ласка, введіть числові значення для F1 і F2!"
 
     if not (0 <= F1 <= 1000) or not (0 <= F2 <= 3000):
@@ -38,7 +38,17 @@ def predict_vowel(F1, F2):
 
     return f"Прогнозований голосний: {closest_vowel}"
 
-iface = gr.Interface(
+def find_vowels_in_text(text):
+    if not text:
+        return "Будь ласка, введіть текст!"
+    
+    vowels_in_text = [char for char in text.lower() if char in VOWELS_DATA]
+    if vowels_in_text:
+        return f"Знайдені голосні: {', '.join(vowels_in_text)}"
+    else:
+        return "У тексті голосні не знайдено."
+
+iface1 = gr.Interface(
     fn=classify_vowel,
     inputs=gr.Textbox(label="Введіть голосний (і, е, а, о, у, и)", placeholder="Напишіть один з голосних"),
     outputs="text",
@@ -56,6 +66,18 @@ iface2 = gr.Interface(
     description="Цей інтерфейс дозволяє прогнозувати голосний звук за введеними значеннями F1 і F2."
 )
 
-app = gr.TabbedInterface([iface, iface2], tab_names=["Аналіз голосного", "Прогнозування за формантами"])
+iface3 = gr.Interface(
+    fn=find_vowels_in_text,
+    inputs=gr.Textbox(label="Введіть текст для пошуку голосних", placeholder="Введіть будь-який текст"),
+    outputs="text",
+    live=True,
+    title="Пошук голосних у тексті",
+    description="Цей інтерфейс знаходить усі голосні (і, е, а, о, у, и) у введеному тексті."
+)
+
+app = gr.TabbedInterface(
+    [iface1, iface2, iface3],
+    tab_names=["Аналіз голосного", "Прогнозування за формантами", "Пошук голосних у тексті"]
+)
 
 app.launch()
